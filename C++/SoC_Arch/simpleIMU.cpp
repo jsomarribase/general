@@ -3,14 +3,15 @@
 #include <vector>
 #define S 4 //Size of address bitset 4bit 
 #define rw 2 //Size of row and column bitset 2bit each
+//Usage: Compile and run, CLI will guide you through.//  
 using namespace std;
-
 class memoryOperationsInterface
 {
 public:
     virtual int read(bool channelsel, int row, int column)=0;
     virtual void write(bool channelsel, int row, int column, bool towrite)=0;
     virtual void refresh(bool channelsel, int row, int column)=0;
+    virtual void buildMemory(vector<vector<bool>> channel1, vector<vector<bool>> channel2)=0;
 };
 class miscOperationsInterface
 {
@@ -27,38 +28,45 @@ class imuOperations: memoryOperationsInterface
 {
 private:
     imuOperations(){};
-public:
-    static imuOperations& getInstance(){
-        static imuOperations theInstance;
-        return theInstance;
-    }
     bool channelsel;
     vector<vector<bool>> channel1mem;
     vector<vector<bool>> channel2mem;
     int row, column, result;
     bool towrite;
+public:
+    static imuOperations& getInstance(){
+        static imuOperations theInstance;
+        return theInstance;
+    }
+    void buildMemory(vector<vector<bool>> channel1, vector<vector<bool>> channel2);
     int read(bool channelsel, int row, int column);
     void write(bool channelsel, int row, int column, bool towrite);
     void refresh(bool channelsel, int row, int column);
 };
 class imuMisc: miscOperationsInterface
 {
-public:
+private:
     vector<vector<bool>> toprint;
     bitset<rw> temprow, tempcolumn;
     int temprowint, tempcolumnint;
+public:
     void printVectorm(vector<vector<bool>> toprint);
     int getRow(bitset<S> address);
     int getColumn(bitset<S> address);
 };
 class imuCLI: cliOperationsInterface
 {   
-    public:
+private:
     int optionselected, temprow, tempcolumn, channelselection, quitflag=0, result;
     bitset<S> address;
     bool temptowrite;
+public:
     void cliCase();
 };
+void imuOperations::buildMemory(vector<vector<bool>> channel1, vector<vector<bool>> channel2){
+    this->channel1mem = channel1;
+    this->channel2mem = channel2;
+}
 int imuOperations::read(bool channelsel, int row, int column){
     imuMisc misc;
     return channelsel?this->channel2mem[row][column]:channel1mem[row][column];
@@ -163,6 +171,7 @@ void imuCLI::cliCase(){
 }
 int main(){
     imuOperations& imuops = imuOperations::getInstance();
+    imuCLI cli;
     int row, column, result;
     vector<vector<bool>> channel1{
         {1,0,0,0},
@@ -176,9 +185,7 @@ int main(){
         {0,0,0,0},
         {0,0,0,0}
     }; 
-    imuops.channel1mem = channel1;
-    imuops.channel2mem = channel2;
-    imuCLI cli;
+    imuops.buildMemory(channel1, channel2);
     cli.cliCase();
     return 0;
 }
