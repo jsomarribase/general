@@ -35,23 +35,24 @@ public:
 };
 class cacheCli: cliOperationsInterface
 {   
-    public:
+    private:
     int optionselected, tempkey, tempvalue, quitflag=0, result;
+    public:
     void cliCase();
 };
 class cache: memoryOperationsInterface
 {
     private:
         cache(){};
+        unordered_map<int, int> tlb;
+        deque<int> deq, tempdeq;
+        deque<int>::iterator it;
+        int size, data; 
     public:
         static cache& getInstance(){
             static cache theInstance;
             return theInstance;
         }
-        unordered_map<int, int> tlb;
-        deque<int> deq, tempdeq;
-        deque<int>::iterator it;
-        int size, data; 
         void buildCache(int size, unordered_map<int, int> inputmap, deque<int> inputdeq);
         void put(int key, int value);
         int get(int key);
@@ -115,7 +116,6 @@ void cache::put(int key, int value){
     misc.printDeque(deq, it);
     misc.printMap(tlb);
 }
-
 int cache::get(int key){
     cachemisc misc;
     //Check if record exists
