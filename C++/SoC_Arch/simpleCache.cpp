@@ -5,70 +5,39 @@
 
 using namespace std;
 
-//Should have:
-//-LRU policy
-//-A structure TLB like. Unordered Map works.  
-//-A structure physical cache like. Need to be deque cause need erase elements. 
-
-//Should follow SOLID principles 
-//-Single purpose only
-//-Open Closed 
-//-Liskov substitution principe
-//-Interface Segregation 
-//-Dependencies Inversion
-
-//Based on https://leetcode.com/problems/lru-cache/discuss/355310/lru-cache-simple-c-code-with-clear-comments
-
-//<<USAGE>>: Just compile, run, select get or put operations on the CLI interface,//
-//when finished select option 3 to exit. No persistent storage ATM,               //
-//initual structure is already predefined in main although user can change it.    //
-
-///////////////////////////////////
-/////////...INTERFACES...//////////
-///////////////////////////////////
-
-//Interface for cli 
-class cliOperations{
+class cliOperationsInterface
+{
 public:
     virtual void cliCase()=0;
 };
-
-//Interface for miscellaneous
-class miscOperations{
+class miscOperationsInterface
+{
 public:
     virtual void printMap(unordered_map<int, int> tempmap)=0;
     virtual void printDeque(deque<int> tempdeque, deque<int>::iterator it)=0;
     virtual deque<int> eraseDequeVal(int tempkey, deque<int> tempdeque, deque<int>::iterator it)=0;
 };
-
-//Interface for re-usable memory Ops
-class memoryOperations{
+class memoryOperationsInterface
+{
 public:
     virtual int get(int key)=0;
     virtual void put(int key, int value)=0;
-    virtual ~memoryOperations(){}
+    virtual ~memoryOperationsInterface(){}
 };
-
-/////////////////////////////////////////////////////////////
-/////////...CLASSES AND THEIR METHODS SIGNATURES...//////////
-/////////////////////////////////////////////////////////////
-
-//micellaneous class and signatures
-class cachemisc: miscOperations{
+class cachemisc: miscOperationsInterface
+{
 public:
     void printMap(unordered_map<int, int> tempmap);
     void printDeque(deque<int> tempdeque, deque<int>::iterator it);
     deque<int> eraseDequeVal(int tempkey, deque<int> tempdeque, deque<int>::iterator it);
 };
-//CacheCli Class and signatures
-class cacheCli: cliOperations
+class cacheCli: cliOperationsInterface
 {   
     public:
     int optionselected, tempkey, tempvalue, quitflag=0, result;
     void cliCase();
 };
-//Cache class and signatures
-class cache: memoryOperations
+class cache: memoryOperationsInterface
 {
     private:
         cache(){};
@@ -84,12 +53,6 @@ class cache: memoryOperations
         void put(int key, int value);
         int get(int key);
 };
-
-////////////////////////////////////////////////
-/////////...METHODS IMPLEMENTATIONS...//////////
-////////////////////////////////////////////////
-
-//miscellaneout methods implementations
 void cachemisc::printMap(unordered_map<int, int> tempmap){
     cout<<"The current map structure is: "<<endl;
     for (auto x : tempmap){
@@ -112,9 +75,7 @@ deque<int> cachemisc::eraseDequeVal(int key, deque<int> tempdeque, deque<int>::i
     }
     return tempdeque;
 }
-//Cache class and methods implementations
 void cache::put(int key, int value){
-    ////////////////Defines logic for writing in cache//////////////////
     cachemisc misc;
     //Check if key is already in TLB and delete it if so since later will push it anyways
     if(tlb.find(key)==tlb.end()){
@@ -148,7 +109,6 @@ void cache::put(int key, int value){
 }
 
 int cache::get(int key){
-    ////////////////Defines logic for reading from cache//////////////////
     cachemisc misc;
     //Check if record exists
     if(tlb.find(key)==tlb.end()){
@@ -167,10 +127,7 @@ int cache::get(int key){
     misc.printMap(tlb);
     return data;
 }
-
-//Implementation of cliCase
 void cacheCli::cliCase(){
-    ////////////////Defines logic of the CLI//////////////////
     cache& cash = cache::getInstance();
     while(quitflag==0){
         cout<<"---------------------------------------------"<<endl;
@@ -207,7 +164,6 @@ void cacheCli::cliCase(){
     }
 }
 int main(){
-    //Need to use Static Magic/Singleton design pattern, otherwise values of instance of cache class set in main are not visible by the CLI.  
     cache& cash = cache::getInstance();
     //Define the initial structure manually. ToDo: Just by having the map can populate the deque and get the size, map can be read from a file or input by the user, etc. 
     cash.size = 4;

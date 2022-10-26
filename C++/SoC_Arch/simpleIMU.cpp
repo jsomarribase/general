@@ -20,7 +20,8 @@ public:
     virtual int getRow(bitset<S> address)=0;
     virtual int getColumn(bitset<S> address)=0;
 };
-class cliOperationsInterface{
+class cliOperationsInterface
+{
 public:
     virtual void cliCase()=0;
 };
