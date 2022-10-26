@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdarg>
 #include <unordered_map>
 #include <deque>
 #include <iterator>
@@ -22,6 +23,7 @@ class memoryOperationsInterface
 public:
     virtual int get(int key)=0;
     virtual void put(int key, int value)=0;
+    virtual void buildCache(int size, unordered_map<int, int> inputmap, deque<int> inputdeq)=0;
     virtual ~memoryOperationsInterface(){}
 };
 class cachemisc: miscOperationsInterface
@@ -50,6 +52,7 @@ class cache: memoryOperationsInterface
         deque<int> deq, tempdeq;
         deque<int>::iterator it;
         int size, data; 
+        void buildCache(int size, unordered_map<int, int> inputmap, deque<int> inputdeq);
         void put(int key, int value);
         int get(int key);
 };
@@ -74,6 +77,11 @@ deque<int> cachemisc::eraseDequeVal(int key, deque<int> tempdeque, deque<int>::i
         }
     }
     return tempdeque;
+}
+void cache::buildCache(int size, unordered_map<int, int> inputmap, deque<int> inputdeq){
+    this->deq = inputdeq;
+    this->tlb = inputmap;
+    this->size = size;
 }
 void cache::put(int key, int value){
     cachemisc misc;
@@ -164,20 +172,21 @@ void cacheCli::cliCase(){
     }
 }
 int main(){
+    //Define the initial cache structure manually, in the future can be a more sophisticated approach. 
+    int size = 4;
+    unordered_map<int, int> inputmap = 
+    {
+        {25,255},
+        {50,500},
+        {12,122},
+        {15,155}
+    };
+    deque<int> deq = {25,50,12,15};
+    //Call the cache constructor
     cache& cash = cache::getInstance();
-    //Define the initial structure manually. ToDo: Just by having the map can populate the deque and get the size, map can be read from a file or input by the user, etc. 
-    cash.size = 4;
-    cash.tlb[25] = 255;
-    cash.tlb[50] = 500;
-    cash.tlb[12] = 122;
-    cash.tlb[15] = 155;
-    cash.deq.push_front(25);
-    cash.deq.push_front(50);
-    cash.deq.push_front(12);
-    cash.deq.push_front(15);
+    cash.buildCache(size, inputmap, deq);
     //Call the CLI
     cacheCli cli;
     cli.cliCase(); 
-
     return 0;
 }
